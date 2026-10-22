@@ -163,7 +163,7 @@ def test_atomic_success_leaves_no_temp_files():
         env = os.environ.copy(); env["PYTHONPATH"] = str(PROGRAM_DIR)
         p = subprocess.run([sys.executable, "-m", "gravity_sim", "--input", str(inp), "--output", str(out)], cwd=PROGRAM_DIR, env=env, capture_output=True, text=True)
         assert p.returncode == 0 and out.exists()
-        assert [x.name for x in pathlib.Path(td).iterdir()] == ["i.json", "o.json"]
+        assert sorted(x.name for x in pathlib.Path(td).iterdir()) == ["i.json", "o.json"]
 
 
 def test_output_schema_is_complete_and_deterministic():
