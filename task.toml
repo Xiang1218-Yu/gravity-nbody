@@ -4,18 +4,22 @@ allow_internet = true
 [task]
 name = "local/gravity-nbody"
 authors = [{ name = "xyj" }]
-difficulty = "hard"
 
 [agent]
 entrypoint = "solution/solve.sh"
+timeout_sec = 900
 
 [environment]
 dockerfile = "environment/Dockerfile"
+allow_internet = true
 network_mode = "public"
 
 [verifier]
 entrypoint = "tests/test.sh"
+timeout_sec = 300
 
 [metadata]
+difficulty = "expert"
+expert_time_estimate = "4h"
 tags = ["physics", "simulation", "n-body", "numerical-methods"]
 description = "Repair a deterministic two-dimensional softened Newtonian n-body simulator with velocity-Verlet integration, collision-component merging, diagnostics, strict validation, and atomic output."

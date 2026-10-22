@@ -26,7 +26,7 @@ if [ "$pip_status" -ne 0 ]; then
   exit "$pip_status"
 fi
 set +e
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$TMP/venv/bin/python" -m pytest -q "$TEST_DIR/test_gravity.py" --junitxml="$TMP/results.xml" >"$TMP/stdout" 2>"$TMP/stderr"
+PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$TMP/venv/bin/python" -m pytest -p no:cacheprovider -q "$TEST_DIR/test_gravity.py" --junitxml="$TMP/results.xml" >"$TMP/stdout" 2>"$TMP/stderr"
 status=$?
 set -e
 python3 - "$TMP/results.xml" "$REWARD_FILE" <<'PY'
