@@ -68,12 +68,13 @@ def parse_request(req: dict) -> tuple[list[Body], float, float, int, float]:
             raise InputError(f"bodies[{i}].id must be a unique non-empty string")
         seen.add(ident)
         mass = _finite_number(item.get("mass"), f"bodies[{i}].mass")
-        radius = _finite_number(item.get("radius", 0.0), f"bodies[{i}].radius")
+        radius = _finite_number(item.get("radius"), f"bodies[{i}].radius")
         if mass <= 0 or radius < 0:
             raise InputError(f"bodies[{i}] has invalid mass or radius")
         x, y = _vec(item.get("position"), f"bodies[{i}].position")
         vx, vy = _vec(item.get("velocity"), f"bodies[{i}].velocity")
         bodies.append(Body(ident, mass, x, y, vx, vy, radius, (ident,)))
+    bodies.sort(key=lambda b: b.id)
     if softening == 0.0:
         for i, a in enumerate(bodies):
             for b in bodies[i + 1 :]:
@@ -102,6 +103,7 @@ def accelerations(bodies: list[Body], G: float, softening: float) -> list[tuple[
 
 
 def _merge_group(group: list[Body]) -> Body:
+    group = sorted(group, key=lambda b: b.id)
     members = tuple(sorted(m for b in group for m in b.members))
     mass = sum(b.mass for b in group)
     x = sum(b.mass * b.x for b in group) / mass
@@ -180,6 +182,7 @@ def simulate(req: dict) -> dict:
         bodies, events = merge_collisions(bodies)
         all_events.extend(events)
     bodies.sort(key=lambda b: b.id)
+    all_events.sort(key=lambda e: e["id"])
     return {
         "status": "ok",
         "time": steps * dt,
