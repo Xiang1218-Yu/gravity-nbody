@@ -160,9 +160,12 @@ def test_atomic_success_leaves_no_temp_files():
     with tempfile.TemporaryDirectory() as td:
         inp, out = pathlib.Path(td)/"i.json", pathlib.Path(td)/"o.json"
         inp.write_text(json.dumps(req), encoding="utf-8")
+        out.write_bytes(b"previous-output-must-be-replaced")
+        previous_inode = out.stat().st_ino
         env = os.environ.copy(); env["PYTHONPATH"] = str(PROGRAM_DIR)
         p = subprocess.run([sys.executable, "-m", "gravity_sim", "--input", str(inp), "--output", str(out)], cwd=PROGRAM_DIR, env=env, capture_output=True, text=True)
         assert p.returncode == 0 and out.exists()
+        assert out.stat().st_ino != previous_inode
         assert sorted(x.name for x in pathlib.Path(td).iterdir()) == ["i.json", "o.json"]
 
 

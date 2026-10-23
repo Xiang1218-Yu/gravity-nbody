@@ -29,8 +29,9 @@ set +e
 PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$TMP/venv/bin/python" -m pytest -p no:cacheprovider -q "$TEST_DIR/test_gravity.py" --junitxml="$TMP/results.xml" >"$TMP/stdout" 2>"$TMP/stderr"
 status=$?
 set -e
-python3 - "$TMP/results.xml" "$REWARD_FILE" <<'PY'
+python3 - "$TMP/results.xml" "$REWARD_FILE" "$status" <<'PY'
 import sys, xml.etree.ElementTree as ET
+runner_status = int(sys.argv[3])
 weights = {
 'test_free_drift_and_time_grid':0.05,
 'test_pairwise_acceleration_direction_and_softening_power':0.13,
@@ -59,7 +60,7 @@ try:
             score += weights.get(name, 0.0)
 except Exception:
     score = 0.0
-if seen != set(weights) or len(cases) != len(weights): score = 0.0
+if runner_status != 0 or seen != set(weights) or len(cases) != len(weights): score = 0.0
 with open(sys.argv[2], 'w', encoding='utf-8') as f: f.write(f'{score:.6f}\n')
 PY
 cat "$TMP/stdout"
